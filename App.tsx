@@ -1,117 +1,175 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const App: React.FC = () => {
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedMonth, setSelectedMonth] = useState<number>(0);
+  const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [age, setAge] = useState<string>('');
+  const [ageInMonths, setAgeInMonths] = useState<string>('');
+  const [ageInWeeks, setAgeInWeeks] = useState<string>('');
+  const [ageInDays, setAgeInDays] = useState<string>('');
+  const [ageInHours, setAgeInHours] = useState<string>('');
+  const [ageInMinutes, setAgeInMinutes] = useState<string>('');
+  const [ageInSeconds, setAgeInSeconds] = useState<string>('');
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  const isLeapYear = (year: number) => {
+    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  };
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  const daysInMonth = (year: number, month: number) => {
+    const days = [
+      31,
+      isLeapYear(year) ? 29 : 28,
+      31,
+      30,
+      31,
+      30,
+      31,
+      31,
+      30,
+      31,
+      30,
+      31
+    ];
+    return days[month];
+  };
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+  const calculateDetailedAge = () => {
+    const year = parseInt(selectedYear);
+    if (isNaN(year)) return;
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+    const selectedDate = new Date(year, selectedMonth, selectedDay);
+    const currentDate = new Date();
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    let years = currentDate.getFullYear() - selectedDate.getFullYear();
+    let months = currentDate.getMonth() - selectedDate.getMonth() + 1;
+    let days = currentDate.getDate() - selectedDate.getDate();
+
+    if (days < 0) {
+      months -= 1;
+      days += daysInMonth(currentDate.getFullYear(), currentDate.getMonth());
+    }
+
+    if (months < 0) {
+      years -= 1;
+      months += 12;
+    }
+
+    const totalMonths = years * 12 + months;
+
+    setAge(`${years} years, ${months} months, ${days} days`);
+    setAgeInMonths(`${totalMonths} months, ${days} days`);
+
+    const diffInMs = currentDate.getTime() - selectedDate.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInSeconds = Math.floor(diffInMs / 1000);
+
+    setAgeInDays(`${diffInDays} days`);
+    setAgeInWeeks(`${diffInWeeks} weeks, ${diffInDays % 7} days`);
+    setAgeInHours(`${diffInHours} hours`);
+    setAgeInMinutes(`${diffInMinutes} minutes`);
+    setAgeInSeconds(`${diffInSeconds} seconds`);
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+    <View style={styles.container}>
+      <View >
+        <Text style={styles.label}>Enter your birth date:</Text>
+
+        <View style={styles.inputContainer}>
+          <View style={styles.pickerContainer}>
+          <Picker
+          selectedValue={selectedDay}
+          style={styles.picker}
+          onValueChange={(itemValue) => setSelectedDay(itemValue)}
+        >
+          {Array.from({ length: daysInMonth(parseInt(selectedYear), selectedMonth) }, (_, i) => (
+            <Picker.Item key={i} label={(i + 1).toString()} value={i + 1} />
+          ))}
+        </Picker>
+      </View>
+
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={selectedMonth}
+          style={styles.picker}
+          onValueChange={(itemValue) => setSelectedMonth(itemValue)}
+        >
+          {Array.from({ length: 12 }, (_, i) => (
+            <Picker.Item key={i} label={new Date(0, i).toLocaleString('default', { month: 'short' })} value={i} />
+          ))}
+        </Picker>
+      </View>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Year"
+        keyboardType="numeric"
+        onChangeText={(text) => setSelectedYear(text)}
+        value={selectedYear}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    </View>
+
+    <Button title="Calculate Age" onPress={calculateDetailedAge} />
+
+    {age !== '' && (
+      <>
+        <Text>Your age is:</Text>
+        <Text> {age}</Text>
+        <Text>or: {ageInMonths}</Text>
+        <Text>or: {ageInWeeks}</Text>
+        <Text>or: {ageInDays}</Text>
+        <Text>or: {ageInHours}</Text>
+        <Text>or: {ageInMinutes}</Text>
+        <Text>or: {ageInSeconds}</Text>
+      </>
+    )}
+  </View>
+  </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
+  label: {
+    marginBottom: 20,
     fontSize: 18,
-    fontWeight: '400',
   },
-  highlight: {
-    fontWeight: '700',
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  input: {
+    height: 40,
+    width: 100,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginHorizontal: 5,
+    paddingHorizontal: 10,
+    textAlign: 'center',
+  },
+  pickerContainer: {
+    height: 40,
+    width: 100,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginHorizontal: 5,
+    justifyContent: 'center',
+  },
+  picker: {
+    width: '100%',
+    height: '100%',
   },
 });
 
