@@ -78,7 +78,10 @@ const App: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <View >
+      <Text style={styles.header}>SR Age Calculator</Text>
+ <View  style={styles.container}>
+      
+      <View>
         <Text style={styles.label}>Enter your birth date:</Text>
 
         <View style={styles.inputContainer}>
@@ -87,6 +90,7 @@ const App: React.FC = () => {
           selectedValue={selectedDay}
           style={styles.picker}
           onValueChange={(itemValue) => setSelectedDay(itemValue)}
+          dropdownIconColor="transparent"
         >
           {Array.from({ length: daysInMonth(parseInt(selectedYear), selectedMonth) }, (_, i) => (
             <Picker.Item key={i} label={(i + 1).toString()} value={i + 1} />
@@ -99,6 +103,7 @@ const App: React.FC = () => {
           selectedValue={selectedMonth}
           style={styles.picker}
           onValueChange={(itemValue) => setSelectedMonth(itemValue)}
+          dropdownIconColor="transparent"
         >
           {Array.from({ length: 12 }, (_, i) => (
             <Picker.Item key={i} label={new Date(0, i).toLocaleString('default', { month: 'short' })} value={i} />
@@ -117,8 +122,10 @@ const App: React.FC = () => {
 
     <Button title="Calculate Age" onPress={calculateDetailedAge} />
 
-    {age !== '' && (
-      <>
+    
+  </View>
+  {age !== '' && (
+      <View style={styles.textSHow}>
         <Text>Your age is:</Text>
         <Text> {age}</Text>
         <Text>or: {ageInMonths}</Text>
@@ -127,10 +134,11 @@ const App: React.FC = () => {
         <Text>or: {ageInHours}</Text>
         <Text>or: {ageInMinutes}</Text>
         <Text>or: {ageInSeconds}</Text>
-      </>
+      </View>
     )}
   </View>
-  </View>
+    </View>
+   
   );
 };
 
@@ -139,7 +147,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    // padding: 16,
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    backgroundColor: '#ff014f',
+    color: '#fff',
+    width: '100%',
+    textAlign: 'center',
+    padding: 10,
   },
   label: {
     marginBottom: 20,
@@ -171,6 +189,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  textSHow:{
+    marginTop: 20,
+  }
 });
 
 export default App;
